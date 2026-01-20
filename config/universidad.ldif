@@ -1,0 +1,70 @@
+# -------------------------------------------------------------
+# 1. CREACION DE LAS UNIDADES ORGANIZACIONALES (CARPETAS)
+# -------------------------------------------------------------
+dn: ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: organizationalUnit
+ou: Estudiantes
+
+dn: ou=Profesores,dc=fis,dc=epn,dc=ec
+objectClass: organizationalUnit
+ou: Profesores
+
+dn: ou=Administrativos,dc=fis,dc=epn,dc=ec
+objectClass: organizationalUnit
+ou: Administrativos
+
+# -------------------------------------------------------------
+# 2. CREACION DE UN ESTUDIANTE (TU USUARIO)
+# -------------------------------------------------------------
+dn: uid=darlin.anacicha,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Anacicha Darlin
+sn: Anacicha
+givenName: Darlin
+uid: darlin.anacicha
+uidNumber: 10002
+gidNumber: 10002
+homeDirectory: /home/darlin.anacicha
+loginShell: /bin/bash
+userPassword: password123
+departmentNumber: Ingenieria de Sistemas
+description: Edad: 22
+# jpegPhoto: (Aqui iria la foto codificada en Base64)
+
+# -------------------------------------------------------------
+# 3. CREACION DE UN PROFESOR (EJEMPLO)
+# -------------------------------------------------------------
+dn: uid=profe.ejemplo,ou=Profesores,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Ingeniero Profe
+sn: Profe
+uid: profe.ejemplo
+uidNumber: 10003
+gidNumber: 10003
+homeDirectory: /home/profe.ejemplo
+loginShell: /bin/bash
+userPassword: password123
+title: Magister en Seguridad Informatica
+# jpegPhoto: (Aqui iria la foto)
+
+# -------------------------------------------------------------
+# 4. CREACION DE UN ADMINISTRATIVO (EJEMPLO)
+# -------------------------------------------------------------
+dn: uid=admin.secretaria,ou=Administrativos,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Secretaria General
+sn: Admin
+uid: admin.secretaria
+uidNumber: 10004
+gidNumber: 10004
+homeDirectory: /home/admin.secretaria
+loginShell: /bin/bash
+userPassword: password123
+title: Secretaria de Decanato
+description: Administrativo de planta central

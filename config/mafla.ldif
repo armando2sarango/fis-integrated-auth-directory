@@ -1,0 +1,13 @@
+dn: uid=enrrique.mafla,ou=Profesores,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Enrrique Mafla
+sn: Mafla
+uid: enrrique.mafla
+uidNumber: 10005
+gidNumber: 10005
+homeDirectory: /home/enrrique.mafla
+loginShell: /bin/bash
+userPassword: password123
+title: Ph.D en Computacion Distribuida
