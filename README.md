@@ -170,13 +170,54 @@ Durante la instalación de Kerberos, configure los siguientes valores **exactame
 
 ### A. Configuración del Archivo Hosts
 
+> ⚠️ **IMPORTANTE:** Necesitas obtener la IP de tu WSL primero.
+
+#### Paso 1: Obtener la IP de WSL
+
+Abre tu terminal **WSL** y ejecuta:
+```bash
+hostname -I | awk '{print $1}'
+```
+
+**Ejemplo de salida:**
+```
+172.28.144.233
+```
+
+Copia esta IP, la necesitarás en el siguiente paso.
+
+#### Paso 2: Editar el archivo hosts en Windows
+
 1. Abra **Bloc de Notas** como Administrador
 2. Edite: `C:\Windows\System32\drivers\etc\hosts`
-3. Agregue la siguiente línea al final:
-
+3. Agregue la siguiente línea al final (reemplazando `<IP_WSL>` con la IP que obtuviste):
 ```plaintext
-127.0.0.1    krb5.fis.epn.ec
+<IP_WSL>    krb5.fis.epn.ec
 ```
+
+**Ejemplo con IP real:**
+```plaintext
+172.28.144.233    krb5.fis.epn.ec
+```
+
+4. Guarde el archivo (Ctrl+S)
+
+#### Paso 3: Verificar la configuración
+
+Abre **PowerShell** en Windows y ejecuta:
+```powershell
+ping krb5.fis.epn.ec
+```
+
+**Salida esperada:**
+```
+Haciendo ping a krb5.fis.epn.ec [172.28.144.233] con 32 bytes de datos:
+Respuesta desde 172.28.144.233: bytes=32 tiempo<1ms TTL=64
+```
+
+> 💡 **Nota sobre IP Dinámica:** La IP de WSL puede cambiar al reiniciar Windows. Si después de un reinicio no puedes acceder al servidor, repite estos pasos para actualizar la IP.
+
+
 
 ### B. Instalación del Cliente MIT Kerberos
 
@@ -185,6 +226,8 @@ Durante la instalación de Kerberos, configure los siguientes valores **exactame
 3. Verifique la instalación en: `C:\Program Files\MIT\Kerberos\bin\gssapi64.dll`
 
 ### C. Configuración del archivo krb5.ini
+
+
 Para que el cliente de Windows sepa cómo comunicarse con el reino FIS.EPN.EC, necesita un archivo de configuración. En lugar de escribirlo a mano, puede obtener la configuración exacta ejecutando este comando en su terminal de WSL
 1. Cree el archivo  C:\ProgramData\MIT\Kerberos5\krb5.ini.
 2. En su WSL ejecute "cat /etc/krb5.conf"
