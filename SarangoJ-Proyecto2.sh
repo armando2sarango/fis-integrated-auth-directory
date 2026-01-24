@@ -94,6 +94,29 @@ chmod +x deploy.sh
 
 # 3. Configuración Servidor (Genera krb5.conf y DNS)
 ./scripts/setup_server.sh
+# --- BLOQUE DE SEGURIDAD LDAP (PROHIBIR ANÓNIMOS) ---
+echo "🔒 Blindando servidor LDAP (Desactivando acceso anónimo)..."
+cat <<EOF > disable_anon.ldif
+dn: cn=config
+changetype: modify
+add: olcDisallows
+olcDisallows: bind_anon
+
+dn: cn=config
+changetype: modify
+add: olcRequires
+olcRequires: authc
+
+dn: olcDatabase={-1}frontend,cn=config
+changetype: modify
+add: olcRequires
+olcRequires: authc
+EOF
+
+# Aplicamos la restricción
+sudo ldapadd -Y EXTERNAL -H ldapi:/// -f disable_anon.ldif > /dev/null 2>&1
+echo "✅ Acceso anónimo bloqueado. Solo usuarios autenticados pueden leer."
+# ----------------------------------------------------
 
 # --- [FIX CRÍTICO] INICIALIZACIÓN DE BASE DE DATOS KERBEROS ---
 # Esto asegura que la base de datos exista antes de intentar crear usuarios
@@ -120,7 +143,7 @@ fi
 
 # 5. Carga de Datos LDAP (Usuarios y Estructura)
 echo "--- [LDAP] Cargando estructura y usuarios base ---"
-ldapadd -c -x -D "cn=admin,dc=fis,dc=epn,dc=ec" -w password123 -f config/universidad.ldif > /dev/null 2>&1 || echo "⚠️  Nota: Se omitieron entradas duplicadas en LDAP."
+ldapadd -c -x -D "cn=admin,dc=fis,dc=epn,dc=ec" -w SistemasSeguro2026 -f config/universidad.ldif > /dev/null 2>&1 || echo "⚠️  Nota: Se omitieron entradas duplicadas en LDAP."
 
 # 6. Carga de Datos Kerberos (Sincronización)
 # Ahora esto funcionará porque la base de datos ya fue creada en el paso 3 (FIX)

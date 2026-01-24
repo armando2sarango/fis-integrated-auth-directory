@@ -33,13 +33,14 @@ $full_user = $_SERVER['REMOTE_USER'] ?? 'invitado';
 $uid = explode("@", $full_user)[0];
 $dominio = "fis.epn.ec";
 
-// LOGICA SUBIDA FOTO
+// 1. LOGICA SUBIDA FOTO (Con Autenticación Segura)
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['foto'])) {
     if($check = getimagesize($_FILES["foto"]["tmp_name"])) {
         $ds = ldap_connect("ldap://localhost");
         ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
-        // Usamos credenciales de admin para poder escribir la foto
-        if ($ds && ldap_bind($ds, "cn=admin,dc=fis,dc=epn,dc=ec", "1234")) {
+        
+        // ⚠️ CORRECCIÓN AQUÍ: Usamos la nueva clave segura
+        if ($ds && ldap_bind($ds, "cn=admin,dc=fis,dc=epn,dc=ec", "SistemasSeguro2026")) {
             $search = ldap_search($ds, "dc=fis,dc=epn,dc=ec", "(uid=$uid)");
             $info = ldap_get_entries($ds, $search);
             if ($info["count"] > 0) {
@@ -51,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['foto'])) {
     }
 }
 
-// LECTURA DE DATOS
+// 2. LECTURA DE DATOS (Con Autenticación Segura - Anónimo Bloqueado)
 $nombre = $uid; $rol = "Usuario"; $subtitulo = ""; $foto_html = '<img src="img/default_user.png" class="profile-img">';
 $datos = [];
 
@@ -59,46 +60,51 @@ $ds = ldap_connect("ldap://localhost");
 ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
 
 if ($ds) {
-    ldap_bind($ds); // Bind anónimo para lectura pública
-    $info = ldap_get_entries($ds, ldap_search($ds, "dc=fis,dc=epn,dc=ec", "(uid=$uid)"));
+    // ⚠️ Autenticación OBLIGATORIA para leer (Blindaje de seguridad)
+    $bind = ldap_bind($ds, "cn=admin,dc=fis,dc=epn,dc=ec", "SistemasSeguro2026");
 
-    if ($info["count"] > 0) {
-        $u = $info[0];
-        $nombre = $u["cn"][0] ?? $uid;
-        $correo = $uid . "@" . $dominio;
-        
-        // FOTO
-        if (isset($u["jpegphoto"][0])) {
-            $foto_html = '<img src="data:image/jpeg;base64,'.base64_encode($u["jpegphoto"][0]).'" class="profile-img">';
-        }
+    if ($bind) {
+        $search = ldap_search($ds, "dc=fis,dc=epn,dc=ec", "(uid=$uid)");
+        $info = ldap_get_entries($ds, $search);
 
-        // LOGICA DE ROLES
-        $dn = $u["dn"];
-        
-        if (strpos($dn, "ou=Profesores") !== false) {
-            $rol = "Docente 👨‍🏫";
-            $subtitulo = $u["title"][0] ?? "Profesor";
-            $datos = [
-                "Departamento" => $u["departmentnumber"][0] ?? "--",
-                "Oficina" => $u["roomnumber"][0] ?? "--",
-                "Estudios" => $u["description"][0] ?? "--",
-                "Teléfono" => $u["telephonenumber"][0] ?? "IP-400"
-            ];
-        } elseif (strpos($dn, "ou=Estudiantes") !== false) {
-            $rol = "Estudiante 🎓";
-            $subtitulo = $u["departmentnumber"][0] ?? "Estudiante"; // Carrera
-            $datos = [
-                "Matrícula ID" => $u["uidnumber"][0],
-                "Información" => $u["description"][0] ?? "Estudiante Activo", // Edad
-                "Correo Inst." => "<a href='#'>$correo</a>"
-            ];
-        } else {
-            $rol = "Administrativo 💼";
-            $subtitulo = $u["title"][0] ?? "Personal";
-            $datos = [
-                "Ubicación" => $u["roomnumber"][0] ?? "--",
-                "Función" => $u["description"][0] ?? "Administrativo"
-            ];
+        if ($info["count"] > 0) {
+            $u = $info[0];
+            $nombre = $u["cn"][0] ?? $uid;
+            $correo = $uid . "@" . $dominio;
+            
+            // FOTO
+            if (isset($u["jpegphoto"][0])) {
+                $foto_html = '<img src="data:image/jpeg;base64,'.base64_encode($u["jpegphoto"][0]).'" class="profile-img">';
+            }
+
+            // LOGICA DE ROLES
+            $dn = $u["dn"];
+            
+            if (strpos($dn, "ou=Profesores") !== false) {
+                $rol = "Docente 👨‍🏫";
+                $subtitulo = $u["title"][0] ?? "Profesor";
+                $datos = [
+                    "Departamento" => $u["departmentnumber"][0] ?? "--",
+                    "Oficina" => $u["roomnumber"][0] ?? "--",
+                    "Estudios" => $u["description"][0] ?? "--",
+                    "Teléfono" => $u["telephonenumber"][0] ?? "IP-400"
+                ];
+            } elseif (strpos($dn, "ou=Estudiantes") !== false) {
+                $rol = "Estudiante 🎓";
+                $subtitulo = $u["departmentnumber"][0] ?? "Estudiante"; // Carrera
+                $datos = [
+                    "Matrícula ID" => $u["uidnumber"][0],
+                    "Información" => $u["description"][0] ?? "Estudiante Activo", // Edad
+                    "Correo Inst." => "<a href='#'>$correo</a>"
+                ];
+            } else {
+                $rol = "Administrativo 💼";
+                $subtitulo = $u["title"][0] ?? "Personal";
+                $datos = [
+                    "Ubicación" => $u["roomnumber"][0] ?? "--",
+                    "Función" => $u["description"][0] ?? "Administrativo"
+                ];
+            }
         }
     }
 }
