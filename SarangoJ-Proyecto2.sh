@@ -123,7 +123,7 @@ echo "✅ Reloj sincronizado."
 # --- BLINDAJE DE SEGURIDAD LDAP ---
 echo "🔒 Blindando servidor LDAP..."
 cat <<LDAPCONF > disable_anon.ldif
-=======
+
 
 dn: cn=config
 changetype: modify
@@ -196,7 +196,7 @@ fi
 # 5. Carga de Datos LDAP
 echo "--- [LDAP] Cargando estructura y usuarios ---"
 ldapadd -c -x -D "cn=admin,dc=fis,dc=epn,dc=ec" -w Sistemas2026 -f config/universidad.ldif > /dev/null 2>&1 || echo "⚠️  Nota: Se omitieron duplicados."
-=======
+
 # 6. Carga de Datos Kerberos
 ./scripts/cargar_demo.sh
 

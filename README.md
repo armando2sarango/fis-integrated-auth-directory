@@ -13,7 +13,7 @@
 ---
 
 ## 📋 Tabla de Contenidos
-- [Quick Start](#-quick-start)  ← NUEVO
+- [Quick Start](#-quick-start) 
 - [Descripción](#-descripción-del-proyecto)
 - [Características](#-características-principales)
 - [Arquitectura](#-arquitectura-y-justificación-técnica)
@@ -44,7 +44,7 @@ sudo ./SarangoJ-Proyecto2.sh
 ./verificar_todo.sh
 
 # 3. Acceder desde Windows
-# - Editar C:\Windows\System32\drivers\etc\hosts (agregar: 127.0.0.1 krb5.fis.epn.ec)
+# - Editar C:\Windows\System32\drivers\etc\hosts (agregar: <IP_DE_WSL>    krb5.fis.epn.ec)
 # - Instalar MIT Kerberos for Windows
 # - Configurar Firefox (ver sección detallada)
 # - Navegar a http://krb5.fis.epn.ec
