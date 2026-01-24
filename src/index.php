@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['foto'])) {
         ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
         
         // ⚠️ CORRECCIÓN AQUÍ: Usamos la nueva clave segura
-        if ($ds && ldap_bind($ds, "cn=admin,dc=fis,dc=epn,dc=ec", "SistemasSeguro2026")) {
+        if ($ds && ldap_bind($ds, "cn=admin,dc=fis,dc=epn,dc=ec", "Sistemas2026")) {
             $search = ldap_search($ds, "dc=fis,dc=epn,dc=ec", "(uid=$uid)");
             $info = ldap_get_entries($ds, $search);
             if ($info["count"] > 0) {
@@ -61,7 +61,7 @@ ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
 
 if ($ds) {
     // ⚠️ Autenticación OBLIGATORIA para leer (Blindaje de seguridad)
-    $bind = ldap_bind($ds, "cn=admin,dc=fis,dc=epn,dc=ec", "SistemasSeguro2026");
+    $bind = ldap_bind($ds, "cn=admin,dc=fis,dc=epn,dc=ec", "Sistemas2026");
 
     if ($bind) {
         $search = ldap_search($ds, "dc=fis,dc=epn,dc=ec", "(uid=$uid)");

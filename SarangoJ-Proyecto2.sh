@@ -143,7 +143,7 @@ fi
 
 # 5. Carga de Datos LDAP (Usuarios y Estructura)
 echo "--- [LDAP] Cargando estructura y usuarios base ---"
-ldapadd -c -x -D "cn=admin,dc=fis,dc=epn,dc=ec" -w SistemasSeguro2026 -f config/universidad.ldif > /dev/null 2>&1 || echo "⚠️  Nota: Se omitieron entradas duplicadas en LDAP."
+ldapadd -c -x -D "cn=admin,dc=fis,dc=epn,dc=ec" -w Sistemas2026 -f config/universidad.ldif > /dev/null 2>&1 || echo "⚠️  Nota: Se omitieron entradas duplicadas en LDAP."
 
 # 6. Carga de Datos Kerberos (Sincronización)
 # Ahora esto funcionará porque la base de datos ya fue creada en el paso 3 (FIX)
