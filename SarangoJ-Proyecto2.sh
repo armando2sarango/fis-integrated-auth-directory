@@ -1,53 +1,67 @@
-cat << 'EOF' > SarangoJ-Proyecto2.sh
 #!/bin/bash
 # =======================================================================
-# INSTALADOR AUTOMÁTICO -  Servicio Integrado de Directorio y Autenticación para la FIS
+# INSTALADOR AUTOMÁTICO - Servicio Integrado de Directorio y Autenticación para la FIS
 # ESTUDIANTE: José Armando Sarango Cuenca
 # =======================================================================
 
-# --- BLOQUE 0: DETECCIÓN INTELIGENTE Y LIMPIEZA (PARA EL PROFESOR) ---
+# --- BLOQUE 0: SANITIZACIÓN PROFUNDA (MATAR ZOMBIES) ---
+echo "🧹 Ejecutando limpieza profunda de Kerberos..."
+
+# Detener servicios primero
+sudo systemctl stop krb5-kdc 2>/dev/null
+sudo systemctl stop krb5-admin-server 2>/dev/null
+
+# Eliminar binarios compilados manualmente
+sudo rm -rf /usr/local/sbin/kdb5_util
+sudo rm -rf /usr/local/sbin/krb5kdc
+sudo rm -rf /usr/local/sbin/kadmind
+sudo rm -rf /usr/local/bin/krb5-config
+sudo rm -rf /usr/local/var/krb5kdc
+
+# CRÍTICO: Eliminar librerías que causan symbol lookup error
+sudo rm -rf /usr/local/lib/libkrb5*
+sudo rm -rf /usr/local/lib/libgssapi*
+sudo rm -rf /usr/local/lib/libkadm5*
+sudo rm -rf /usr/local/include/krb5*
+
+# Actualizar cache de librerías del sistema
+sudo ldconfig
+
+echo "✨ Limpieza profunda completada."
+sleep 1
+
+# --- BLOQUE 1: DETECCIÓN INTELIGENTE Y LIMPIEZA ---
 clear
 echo "========================================================="
 echo " 🕵️  VERIFICACIÓN DE ENTORNO PREVIO"
 echo "========================================================="
 
 if dpkg -l | grep -q "krb5-kdc"; then
-    echo "🚨 ATENCIÓN: Se ha detectado una instalación previa de Kerberos/LDAP."
-    echo "   Si continúa sin limpiar, el proyecto FALLARÁ por conflictos de base de datos."
-    echo ""
-    echo "   Si usted es el Docente o está re-intentando la instalación,"
-    echo "   se recomienda encarecidamente realizar una LIMPIEZA TOTAL."
-    echo ""
-    read -p "♻️  ¿Desea realizar una LIMPIEZA PROFUNDA y reinstalar desde cero? (Recomendado) (y/n): " limpiar
+    echo "🚨 ATENCIÓN: Se ha detectado una instalación previa."
+    read -p "♻️  ¿Desea realizar una LIMPIEZA TOTAL y reinstalar? (y/n): " limpiar
     
     if [[ "$limpiar" == "y" || "$limpiar" == "Y" ]]; then
-        echo "🧹 Ejecutando Protocolo de Limpieza..."
+        echo "🧹 Ejecutando Protocolo de Limpieza de Paquetes..."
+        sudo systemctl stop krb5-kdc 2>/dev/null
+        sudo systemctl stop krb5-admin-server 2>/dev/null
+        sudo systemctl stop slapd 2>/dev/null
+        sudo systemctl stop bind9 2>/dev/null
+        sudo systemctl stop apache2 2>/dev/null
         
-        # 1. Parar servicios
-        sudo service krb5-kdc stop 2>/dev/null
-        sudo service krb5-admin-server stop 2>/dev/null
-        sudo service slapd stop 2>/dev/null
-        sudo service bind9 stop 2>/dev/null
-        sudo service apache2 stop 2>/dev/null
-        
-        # 2. Desinstalar paquetes (Purge)
-        echo "   - Desinstalando paquetes..."
+        # Purga completa
         sudo apt purge krb5-kdc krb5-admin-server krb5-config slapd ldap-utils bind9 bind9utils apache2 libapache2-mod-auth-gssapi -y > /dev/null 2>&1
         sudo apt autoremove --purge -y > /dev/null 2>&1
         
-        # 3. Borrar residuos de configuración (CRÍTICO)
-        echo "   - Borrando bases de datos antiguas..."
-        sudo rm -rf /etc/krb5.conf
-        sudo rm -rf /var/lib/krb5kdc
-        sudo rm -rf /etc/ldap
-        sudo rm -rf /var/lib/ldap
-        sudo rm -rf /etc/bind
+        # Borrado profundo de configuraciones
+        sudo rm -rf /etc/krb5.conf /var/lib/krb5kdc /etc/krb5kdc
+        sudo rm -rf /etc/ldap /var/lib/ldap
+        sudo rm -rf /etc/bind/db.fis.epn.ec /etc/bind/named.conf.local
         sudo rm -rf /var/www/html/*
         
-        echo "✨ Sistema limpio y listo para instalación fresca."
+        echo "✨ Sistema limpio."
         sleep 2
     else
-        echo "⚠️  Continuando sobre instalación existente (Bajo su propio riesgo)..."
+        echo "⚠️  Continuando sobre instalación existente..."
     fi
 else
     echo "✅ Entorno limpio detectado."
@@ -58,45 +72,57 @@ echo "========================================================="
 echo " ⚠️  ADVERTENCIA DE SEGURIDAD Y RESPALDO ⚠️"
 echo "========================================================="
 echo " Este instalador va a configurar Kerberos (FIS.EPN.EC), DNS y LDAP."
-echo " Para su seguridad, se realizará un BACKUP AUTOMÁTICO"
-echo " de sus configuraciones actuales en: ./backups_previos/"
+echo " Se realizará un BACKUP en: ./backups_previos/"
 echo "========================================================="
 read -p "¿Desea continuar con la instalación? (y/N): " confirm
 
 if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
-    echo "❌ Instalación cancelada. No se hicieron cambios."
+    echo "❌ Instalación cancelada."
     exit 1
 fi
 
-# --- RUTINA DE RESPALDO ---
-echo ""
-echo "📦 Generando copias de seguridad..."
 mkdir -p backups_previos
-[ -f /etc/krb5.conf ] && cp /etc/krb5.conf backups_previos/krb5.conf.bak && echo "   - krb5.conf respaldado."
-[ -f /etc/bind/named.conf.local ] && cp /etc/bind/named.conf.local backups_previos/named.conf.local.bak && echo "   - Config DNS respaldada."
-[ -f /etc/hosts ] && cp /etc/hosts backups_previos/hosts.bak && echo "   - Hosts respaldado."
+[ -f /etc/krb5.conf ] && cp /etc/krb5.conf backups_previos/krb5.conf.bak
+[ -f /etc/bind/named.conf.local ] && cp /etc/bind/named.conf.local backups_previos/named.conf.local.bak
+[ -f /etc/hosts ] && cp /etc/hosts backups_previos/hosts.bak
 echo "✅ Respaldo completado."
-sleep 1
 
+# --- BLOQUE 2: INSTALACIÓN EXPLÍCITA ---
 echo ""
 echo "========================================================="
-echo " 🚀 INICIANDO INSTALACIÓN DEL SERVICIO INTEGRADO (FIS EPN)"
+echo " 🚀 INICIANDO INSTALACIÓN DE PAQUETES"
 echo "========================================================="
+echo "ATENTO A LAS PANTALLAS AZULES:"
+echo "👉 Realm: FIS.EPN.EC"
+echo "👉 Servers: krb5.fis.epn.ec"
+echo "👉 Admin Password: Sistemas2026"
+echo "---------------------------------------------------------"
+sleep 2
 
-# 1. Permisos
-chmod +x scripts/*.sh
-chmod +x deploy.sh
-
-# 2. Instalación de Paquetes
-# Aquí saldrán las PANTALLAS AZULES si el sistema está limpio.
-# Recuerda: Realm = FIS.EPN.EC | Servidores = krb5.fis.epn.ec
-./scripts/setup_clients.sh
-
-# 3. Configuración Servidor (Genera krb5.conf y DNS)
+sudo apt update -y
+sudo apt install ntp krb5-kdc krb5-admin-server krb5-config slapd ldap-utils bind9 bind9utils bind9-doc apache2 libapache2-mod-auth-gssapi php libapache2-mod-php php-ldap -y
+# --- BLOQUE 3: CONFIGURACIÓN ---
+echo ""
+echo "========================================================="
+echo " ⚙️  CONFIGURANDO SERVICIOS"
+echo "========================================================="
+# 1. Asegurar permisos de los scripts secundarios
+chmod +x scripts/*.sh deploy.sh
+# --- NUEVO: ASEGURAR SINCRONIZACIÓN DE TIEMPO (CRÍTICO) ---
+echo "🕰️  Configurando sincronización horaria (NTP)..."
+# Habilitar el servicio para que inicie siempre con el sistema
+sudo systemctl enable ntp 2>/dev/null
+# Reiniciar para forzar la sincronización inmediata con los servidores de Ubuntu
+sudo systemctl restart ntp
+sleep 2
+echo "✅ Reloj sincronizado."
+# ---------------------------------------------------------
+# 2.Configuración Servidor
 ./scripts/setup_server.sh
-# --- BLOQUE DE SEGURIDAD LDAP (PROHIBIR ANÓNIMOS) ---
-echo "🔒 Blindando servidor LDAP (Desactivando acceso anónimo)..."
-cat <<EOF > disable_anon.ldif
+
+# --- BLINDAJE DE SEGURIDAD LDAP ---
+echo "🔒 Blindando servidor LDAP..."
+cat <<LDAPCONF > disable_anon.ldif
 dn: cn=config
 changetype: modify
 add: olcDisallows
@@ -111,54 +137,84 @@ dn: olcDatabase={-1}frontend,cn=config
 changetype: modify
 add: olcRequires
 olcRequires: authc
-EOF
+LDAPCONF
 
-# Aplicamos la restricción
 sudo ldapadd -Y EXTERNAL -H ldapi:/// -f disable_anon.ldif > /dev/null 2>&1
-echo "✅ Acceso anónimo bloqueado. Solo usuarios autenticados pueden leer."
-# ----------------------------------------------------
+echo "✅ Acceso anónimo bloqueado."
 
-# --- [FIX CRÍTICO] INICIALIZACIÓN DE BASE DE DATOS KERBEROS ---
-# Esto asegura que la base de datos exista antes de intentar crear usuarios
+# --- FIX CRÍTICO KERBEROS (ELIMINANDO CONFLICTOS) ---
+echo "🔧 Inicializando Base de Datos Maestra de Kerberos..."
+
+# Asegurar que existan los directorios correctos
+sudo mkdir -p /var/lib/krb5kdc
+sudo mkdir -p /etc/krb5kdc
+sudo chmod 700 /var/lib/krb5kdc
+
+# Detener servicios antes de inicializar
+sudo systemctl stop krb5-kdc 2>/dev/null
+sudo systemctl stop krb5-admin-server 2>/dev/null
+
 if [ ! -f /var/lib/krb5kdc/principal ]; then
-    echo "🔧 [FIX] Inicializando Base de Datos Maestra de Kerberos..."
-    
-    # 1. Aseguramos que el directorio esté limpio
     sudo rm -rf /var/lib/krb5kdc/*
     
-    # 2. Creamos el reino automáticamente (sin pedir clave interactiva)
-    # La clave maestra será: password123
-    printf "password123\npassword123" | sudo krb5_newrealm
+    # FORZAMOS EL USO DEL BINARIO CORRECTO DEL SISTEMA
+    sudo /usr/sbin/kdb5_util create -r FIS.EPN.EC -s -P password123
     
-    # 3. Reiniciamos servicios para aplicar cambios
-    sudo service krb5-admin-server restart
-    sudo service krb5-kdc restart
+    # Esperar a que se cree el archivo
+    sleep 2
+    
+    # Verificar que se creó correctamente
+    if [ -f /var/lib/krb5kdc/principal ]; then
+        echo "✅ Base de datos Kerberos inicializada correctamente."
+    else
+        echo "❌ ERROR: No se pudo crear la base de datos Kerberos."
+        exit 1
+    fi
+    
+    # Ahora sí reiniciar servicios
+    sudo systemctl restart krb5-kdc
+    sudo systemctl restart krb5-admin-server
     sleep 3
-    echo "✅ Base de datos Kerberos inicializada correctamente."
+    
+    # Verificar que los servicios estén activos
+    if sudo systemctl is-active --quiet krb5-kdc; then
+        echo "✅ Servicio KDC iniciado correctamente."
+    else
+        echo "⚠️  Advertencia: KDC no pudo iniciarse. Verifica los logs con: journalctl -xeu krb5-kdc.service"
+    fi
+else
+    echo "⚠️  Base de datos Kerberos ya existe, omitiendo creación..."
+    sudo systemctl restart krb5-kdc
+    sudo systemctl restart krb5-admin-server
 fi
-# -------------------------------------------------------------
 
 # 4. Despliegue Web
 ./deploy.sh
 
-# 5. Carga de Datos LDAP (Usuarios y Estructura)
-echo "--- [LDAP] Cargando estructura y usuarios base ---"
-ldapadd -c -x -D "cn=admin,dc=fis,dc=epn,dc=ec" -w Sistemas2026 -f config/universidad.ldif > /dev/null 2>&1 || echo "⚠️  Nota: Se omitieron entradas duplicadas en LDAP."
+# 5. Carga de Datos LDAP
+echo "--- [LDAP] Cargando estructura y usuarios ---"
+ldapadd -c -x -D "cn=admin,dc=fis,dc=epn,dc=ec" -w Sistemas2026 -f config/universidad.ldif > /dev/null 2>&1 || echo "⚠️  Nota: Se omitieron duplicados."
 
-# 6. Carga de Datos Kerberos (Sincronización)
-# Ahora esto funcionará porque la base de datos ya fue creada en el paso 3 (FIX)
+# 6. Carga de Datos Kerberos
 ./scripts/cargar_demo.sh
 
 echo ""
 echo "========================================================="
 echo " ✅ INSTALACIÓN FINALIZADA EXITOSAMENTE"
 echo "========================================================="
-echo "DATOS DE ACCESO PARA PRUEBAS (Clave: password123):"
-echo "--------------------------------------------------"
-echo "1. Dr. Mafla:      luis.mafla"
-echo "2. Estudiante:     jose.sarango"
-echo "3. Admin:          carlos.soporte"
-echo ""
-echo "URL de Acceso: http://krb5.fis.epn.ec"
+echo "URL: http://krb5.fis.epn.ec"
+echo "Admin LDAP: Sistemas2026"
+echo "Usuario Web: jose.sarango / password123"
 echo "========================================================="
-EOF
+
+# Verificación automática post-instalación
+echo ""
+echo "========================================================="
+echo " 🔍 VERIFICACIÓN DEL SISTEMA"
+echo "========================================================="
+echo "Estado del KDC:"
+sudo systemctl status krb5-kdc --no-pager -l | grep "Active:"
+echo ""
+echo "Estado del Admin Server:"
+sudo systemctl status krb5-admin-server --no-pager -l | grep "Active:"
+echo "========================================================="

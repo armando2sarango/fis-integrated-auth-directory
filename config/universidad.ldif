@@ -12,17 +12,17 @@ objectClass: organizationalUnit
 ou: Administrativos
 
 # 2. PROFESOR: LUIS ENRIQUE MAFLA GALLEGOS
-dn: uid=luis.mafla,ou=Profesores,dc=fis,dc=epn,dc=ec
+dn: uid=enrrique.mafla,ou=Profesores,dc=fis,dc=epn,dc=ec
 objectClass: inetOrgPerson
 objectClass: posixAccount
 objectClass: shadowAccount
-cn: Luis Enrique Mafla Gallegos
+cn: enrrique Enrique Mafla Gallegos
 sn: Mafla Gallegos
 givenName: Luis Enrique
-uid: luis.mafla
+uid: enrrique.mafla
 uidNumber: 10001
 gidNumber: 10001
-homeDirectory: /home/luis.mafla
+homeDirectory: /home/enrrique.mafla
 loginShell: /bin/bash
 userPassword: password123
 title: PhD en Purdue University

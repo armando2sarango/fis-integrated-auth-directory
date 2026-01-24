@@ -1,6 +1,5 @@
 #!/bin/bash
 echo "--- Iniciando Configuracion SarangoJ ---"
-
 # 1. Detectar IP actual (WSL)
 MYIP=$(hostname -I | awk '{print $1}')
 echo "Tu IP detectada es: $MYIP"
@@ -31,7 +30,7 @@ cat <<EOF | sudo tee /etc/bind/db.fis.epn.ec
 krb5    IN      A       $MYIP
 EOF
 
-# 3. Configurar Kerberos (krb5.conf)
+# 3. Configurar Kerberos (krb5.conf) CON RUTAS EXPLÍCITAS
 echo "Configurando krb5.conf..."
 cat <<EOF | sudo tee /etc/krb5.conf
 [libdefaults]
@@ -43,6 +42,13 @@ cat <<EOF | sudo tee /etc/krb5.conf
     FIS.EPN.EC = {
         kdc = krb5.fis.epn.ec
         admin_server = krb5.fis.epn.ec
+        database_name = /var/lib/krb5kdc/principal
+        admin_keytab = FILE:/etc/krb5kdc/kadm5.keytab
+        acl_file = /etc/krb5kdc/kadm5.acl
+        key_stash_file = /etc/krb5kdc/stash
+        kdc_ports = 88
+        max_life = 10h 0m 0s
+        max_renewable_life = 7d 0h 0m 0s
     }
 
 [domain_realm]
@@ -50,6 +56,32 @@ cat <<EOF | sudo tee /etc/krb5.conf
     fis.epn.ec = FIS.EPN.EC
 EOF
 
-# 4. Reiniciar servicio de red
+# 4. Crear archivo ACL de Kerberos
+echo "Configurando ACL de Kerberos..."
+sudo mkdir -p /etc/krb5kdc
+cat <<EOF | sudo tee /etc/krb5kdc/kadm5.acl
+*/admin@FIS.EPN.EC    *
+EOF
+
+# 5. Configurar kdc.conf
+echo "Configurando kdc.conf..."
+cat <<EOF | sudo tee /etc/krb5kdc/kdc.conf
+[kdcdefaults]
+    kdc_ports = 88
+
+[realms]
+    FIS.EPN.EC = {
+        database_name = /var/lib/krb5kdc/principal
+        admin_keytab = FILE:/etc/krb5kdc/kadm5.keytab
+        acl_file = /etc/krb5kdc/kadm5.acl
+        key_stash_file = /etc/krb5kdc/stash
+        kdc_ports = 88
+        max_life = 10h 0m 0s
+        max_renewable_life = 7d 0h 0m 0s
+        default_principal_flags = +preauth
+    }
+EOF
+
+# 6. Reiniciar servicio de red
 sudo systemctl restart bind9
 echo "--- Archivos Creados Exitosamente ---"

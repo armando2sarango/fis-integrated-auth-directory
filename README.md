@@ -13,7 +13,7 @@
 ---
 
 ## 📋 Tabla de Contenidos
-
+- [Quick Start](#-quick-start)  ← NUEVO
 - [Descripción](#-descripción-del-proyecto)
 - [Características](#-características-principales)
 - [Arquitectura](#-arquitectura-y-justificación-técnica)
@@ -32,7 +32,25 @@
 ## 📖 Descripción del Proyecto
 
 Este sistema simula una infraestructura de red empresarial real que implementa **Single Sign-On (SSO)** para gestión de identidades corporativas. Permite que usuarios de diferentes perfiles (Profesores, Estudiantes y Administrativos) accedan a servicios web utilizando una única contraseña, visualizando información personalizada según su rol.
+## 🚀 Quick Start (Para Usuarios Experimentados)
+```bash
+# 1. Clonar e instalar
+git clone https://github.com/armando2sarango/fis-integrated-auth-directory.git
+cd fis-integrated-auth-directory
+chmod +x *.sh scripts/*.sh
+sudo ./SarangoJ-Proyecto2.sh
 
+# 2. Verificar instalación
+./verificar_todo.sh
+
+# 3. Acceder desde Windows
+# - Editar C:\Windows\System32\drivers\etc\hosts (agregar: 127.0.0.1 krb5.fis.epn.ec)
+# - Instalar MIT Kerberos for Windows
+# - Configurar Firefox (ver sección detallada)
+# - Navegar a http://krb5.fis.epn.ec
+```
+
+Para instrucciones detalladas, continúa leyendo...
 ### Tecnologías Integradas
 
 El proyecto combina dos estándares industriales de identidad y acceso:
@@ -57,7 +75,7 @@ El proyecto combina dos estándares industriales de identidad y acceso:
 
 ### Componentes del Sistema
 
-#### 1. **Sincronización de Tiempo** (`ntpdate`)
+#### 1. **Sincronización de Tiempo** (`ntp`)
 **Propósito:** Prevención de ataques de repetición (Replay Attacks)
 
 Kerberos requiere sincronización temporal estricta (tolerancia < 5 minutos) entre servidor y cliente. NTP garantiza la coherencia temporal necesaria para la validez de los tickets.
@@ -106,6 +124,10 @@ Almacena atributos extendidos no manejados por Kerberos:
 - **Privilegios:** Acceso administrativo para configuración
 
 ---
+### Red
+- **Conectividad:** Cliente y servidor en la misma red local o WSL2 accesible desde Windows
+- **Puertos:** 88 (Kerberos), 389 (LDAP), 80 (HTTP)
+- **Firewall:** Permitir tráfico entre cliente Windows y WSL/servidor Linux
 
 ## 🚀 Instalación
 
@@ -162,15 +184,21 @@ Durante la instalación de Kerberos, configure los siguientes valores **exactame
 2. Ejecute el instalador y seleccione instalación **Typical**
 3. Verifique la instalación en: `C:\Program Files\MIT\Kerberos\bin\gssapi64.dll`
 
-### C. Obtención de Tickets (Opcional)
+### C. Configuración del archivo krb5.ini
+Para que el cliente de Windows sepa cómo comunicarse con el reino FIS.EPN.EC, necesita un archivo de configuración. En lugar de escribirlo a mano, puede obtener la configuración exacta ejecutando este comando en su terminal de WSL
+1. Cree el archivo  C:\ProgramData\MIT\Kerberos5\krb5.ini.
+2. En su WSL ejecute "cat /etc/krb5.conf"
+3. Copie todo lo que tiene ese archivo en el .init de windows(recuerde ingresar como administrador para que le permita guardar los cambios)
+
+### D. Obtención de Tickets (Primera Prueba)
 
 1. Abra **MIT Kerberos Ticket Manager**
 2. Haga clic en **Get Ticket**
 3. Ingrese credenciales:
-   - **Principal:** `luis.mafla` (o cualquier usuario del sistema)
+   - **Principal:** `enrrique.mafla@EPN.FIS.EC` (o cualquier usuario del sistema)
    - **Password:** `password123`
 
-### D. Configuración de Zonas de Seguridad de Windows
+### E. Configuración de Zonas de Seguridad de Windows
 
 1. Abra **Panel de Control** → **Opciones de Internet**
 2. Vaya a la pestaña **Seguridad**
@@ -181,8 +209,8 @@ Durante la instalación de Kerberos, configure los siguientes valores **exactame
 7. Haga clic en **Agregar** y luego en **Cerrar**
 
 > **Nota:** Este paso es crucial para que Windows confíe en el dominio y permita la autenticación automática.
-
-### E. Configuración de Mozilla Firefox
+> ⚠️ **IMPORTANTE:** Cierre completamente Firefox antes de realizar estos cambios (incluyendo procesos en segundo plano).
+### F. Configuración de Mozilla Firefox
 
 1. Escriba en la barra de direcciones: `about:config`
 2. Acepte el aviso de riesgo
@@ -204,36 +232,151 @@ Durante la instalación de Kerberos, configure los siguientes valores **exactame
 
 Navegue a: **http://krb5.fis.epn.ec**
 
-### Credenciales de Prueba
+### 👤 Creación Rápida de Usuarios (LDAP + Kerberos)
 
-**Contraseña universal:** `password123`
+Para agregar nuevos usuarios al sistema de forma automatizada, utilice el script `crear_usuario.sh`:
+```bash
+sudo ./scripts/crear_usuario.sh
+```
 
-| Perfil | Usuario | Información Visible |
-|--------|---------|---------------------|
-| **Profesor** | `luis.mafla` | Títulos académicos, Oficina 211, Depto. Ciencias de la Computación |
-| **Estudiante** | `jose.sarango` | Edad, Carrera, Matrícula, Semestre |
-| **Administrativo** | `carlos.soporte` | Cargo TI, Ubicación de servidores |
+#### Ejemplo de Creación de un Profesor
+```plaintext
+=== CREADOR DE USUARIOS AVANZADO (KERBEROS + LDAP) ===
+Usuario (ej: joel.quilumba): juan.perez
+Primer Nombre: Juan
+Segundo Nombre (opcional, presiona Enter para omitir): Carlos
+Apellido: Pérez
+Contraseña: ********
+------------------------------------------------
+Seleccione el ROL del usuario:
+1) Estudiante
+2) Profesor
+3) Administrativo
+Opción (1-3): 2
+Título Académico (ej: PhD en Purdue University): PhD en Machine Learning
+Departamento (ej: Informática y Ciencias de la Computación): Inteligencia Artificial
+Número de Oficina (ej: 211): 305
+Teléfono (ej: 022-976-300): 022-333-444
+Descripción/Trayectoria: Investigador en IA | 15 años experiencia
+
+>> [1/2] Creando principal en Kerberos...
+✅ Principal creado
+
+>> [2/2] Generando entrada LDAP para Profesores...
+✅ Usuario juan.perez creado exitosamente en Profesores
+   DN: uid=juan.perez,ou=Profesores,dc=fis,dc=epn,dc=ec
+   UID Number: 10025
+   GID Number: 10001
+------------------------------------------------
+```
+
+#### Ejemplo de Creación de un Estudiante
+```plaintext
+=== CREADOR DE USUARIOS AVANZADO (KERBEROS + LDAP) ===
+Usuario (ej: joel.quilumba): maria.lopez
+Primer Nombre: María
+Segundo Nombre (opcional, presiona Enter para omitir): 
+Apellido: López
+Contraseña: ********
+------------------------------------------------
+Seleccione el ROL del usuario:
+1) Estudiante
+2) Profesor
+3) Administrativo
+Opción (1-3): 1
+Carrera (ej: Ciencias de la Computación): Ingeniería en Sistemas
+Edad: 21
+
+>> [1/2] Creando principal en Kerberos...
+✅ Principal creado
+
+>> [2/2] Generando entrada LDAP para Estudiantes...
+✅ Usuario maria.lopez creado exitosamente en Estudiantes
+   DN: uid=maria.lopez,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+   UID Number: 10026
+   GID Number: 10000
+------------------------------------------------
+```
+
+#### Campos Requeridos por Rol
+
+| Rol | Campos Adicionales |
+|-----|-------------------|
+| **Estudiante** | • Carrera<br>• Edad |
+| **Profesor** | • Título Académico<br>• Departamento<br>• Número de Oficina<br>• Teléfono<br>• Descripción/Trayectoria |
+| **Administrativo** | • Cargo<br>• Ubicación/Oficina<br>• Descripción del puesto |
+
+#### Verificación del Usuario Creado
+
+Para verificar que el usuario fue creado correctamente:
+```bash
+# Verificar en LDAP
+ldapsearch -x -D "cn=admin,dc=fis,dc=epn,dc=ec" -w Sistemas2026 \
+  -b "ou=Profesores,dc=fis,dc=epn,dc=ec" "(uid=juan.perez)"
+
+# Verificar en Kerberos
+sudo kadmin.local -q "getprinc juan.perez"
+```
+
+#### Prueba de Autenticación
+```bash
+# Obtener ticket Kerberos
+kinit juan.perez
+# Ingrese la contraseña cuando se solicite
+
+# Verificar ticket
+klist
+
+# Debería mostrar:
+# Ticket cache: FILE:/tmp/krb5cc_1000
+# Default principal: juan.perez@FIS.EPN.EC
+```
+
+### 🔑 Credenciales de Prueba
+
+> **Contraseña para todos los usuarios:** `password123`
+
+| Rol | Usuario | Descripción |
+|-----|---------|-------------|
+| 👨‍🏫 **Profesor** | `luis.mafla` | Títulos académicos, Oficina 211, Depto. CC |
+| 👨‍🎓 **Estudiante** | `jose.sarango` | Edad, Carrera, Matrícula |
+| 👨‍💼 **Administrativo** | `carlos.soporte` | Cargo TI, Ubicación |
 
 ### Funcionalidades Disponibles
 
 - **Visualizar Perfil:** Información personalizada según rol
 - **Cambiar Foto:** Cargar nueva imagen de perfil (almacenada en LDAP)
 - **Cerrar Sesión:** Invalidar tickets de autenticación
+- **Crear Usuarios:** Agregar nuevos usuarios con el script automatizado
+
 
 ---
 
 ## ✅ Verificación y Pruebas
 
 ### 1. Auditoría del Sistema
-
-Ejecute el script de verificación para validar la correcta creación de usuarios:
-
 ```bash
 ./verificar_todo.sh
 ```
 
-**Resultado esperado:** Todos los usuarios deben mostrar estado `✅ OK` en LDAP y Kerberos.
+**✅ Output esperado:**
+```
+[LDAP] luis.mafla ✅ OK
+[KRB5] luis.mafla ✅ OK
+[LDAP] jose.sarango ✅ OK
+[KRB5] jose.sarango ✅ OK
+...
+✅ Sistema verificado correctamente
+```
 
+**❌ Si ves errores:**
+```bash
+# Revisar logs de Kerberos
+sudo tail -f /var/log/krb5kdc.log
+
+# Revisar logs de LDAP
+sudo journalctl -u slapd -f
+```
 ### 2. Prueba de Autenticación SSO
 
 1. Acceda a: http://krb5.fis.epn.ec
@@ -278,7 +421,7 @@ fis-integrated-auth-directory/
 
 **Solución:**
 ```bash
-sudo ntpdate pool.ntp.org
+sudo ntp pool.ntp.org
 sudo systemctl restart krb5-kdc
 ```
 
@@ -296,6 +439,13 @@ sudo systemctl restart krb5-kdc
 1. Verifique la ruta de `gssapi64.dll` en `about:config`
 2. Confirme que `network.negotiate-auth.use-sspi` esté en `false`
 3. Reinicie Firefox completamente
+### Error: "El navegador muestra código PHP (texto) en lugar de la web"
+**Causa:** Apache está usando el módulo mpm_event en lugar de mpm_prefork. 
+**Solución:**Ejecute los siguientes comandos
+sudo a2dismod mpm_event
+sudo a2enmod mpm_prefork
+sudo a2enmod php8.3  # (o la versión detectada)
+sudo systemctl restart apache2
 
 ---
 

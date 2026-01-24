@@ -1,13 +1,14 @@
 #!/bin/bash
+
 # --- CONFIGURACION ---
 LDAP_BASE="dc=fis,dc=epn,dc=ec"
 LDAP_ADMIN="cn=admin,dc=fis,dc=epn,dc=ec"
-# ¡OJO! Asegúrate que esta sea tu contraseña real de LDAP
-LDAP_PASS="1234" 
+LDAP_PASS="Sistemas2026"  # ⚠️ Actualizada según tus búsquedas
 
 echo "=== CREADOR DE USUARIOS AVANZADO (KERBEROS + LDAP) ==="
 read -p "Usuario (ej: joel.quilumba): " USUARIO
 read -p "Primer Nombre: " NOMBRE
+read -p "Segundo Nombre (opcional, presiona Enter para omitir): " SEGUNDO_NOMBRE
 read -p "Apellido: " APELLIDO
 read -s -p "Contraseña: " PASSWORD
 echo ""
@@ -20,29 +21,50 @@ read -p "Opción (1-3): " OPCION
 
 # Variables por defecto
 OU="Estudiantes"
-GID=10002
+GID=10000
 EXTRA_ATTR=""
+CN_COMPLETO=""
+
+# Construir nombre completo
+if [ -z "$SEGUNDO_NOMBRE" ]; then
+    CN_COMPLETO="$NOMBRE $APELLIDO"
+else
+    CN_COMPLETO="$NOMBRE $SEGUNDO_NOMBRE $APELLIDO"
+fi
 
 case $OPCION in
     1)
         OU="Estudiantes"
-        GID=10002
-        read -p "Ingrese la Carrera (ej: Sistemas): " CARRERA
-        # Usamos departmentNumber para la carrera
-        EXTRA_ATTR="departmentNumber: $CARRERA"
+        GID=10000
+        read -p "Carrera (ej: Ciencias de la Computación): " CARRERA
+        read -p "Edad: " EDAD
+        EXTRA_ATTR="departmentNumber: $CARRERA"$'\n'"description: Edad: $EDAD"
         ;;
     2)
         OU="Profesores"
-        GID=10003
-        read -p "Ingrese Título Académico (ej: PhD en IA): " TITULO
-        EXTRA_ATTR="title: $TITULO"
+        GID=10001
+        read -p "Título Académico (ej: PhD en Purdue University): " TITULO
+        read -p "Departamento (ej: Informática y Ciencias de la Computación): " DEPTO
+        read -p "Número de Oficina (ej: 211): " OFICINA
+        read -p "Teléfono (ej: 022-976-300): " TELEFONO
+        read -p "Descripción/Trayectoria: " DESC
+        
+        EXTRA_ATTR="title: $TITULO"$'\n'
+        EXTRA_ATTR+="departmentNumber: $DEPTO"$'\n'
+        EXTRA_ATTR+="roomNumber: $OFICINA"$'\n'
+        EXTRA_ATTR+="telephoneNumber: $TELEFONO"$'\n'
+        EXTRA_ATTR+="description: $DESC"
         ;;
     3)
         OU="Administrativos"
-        GID=10004
-        read -p "Ingrese el Cargo (ej: Secretaria): " CARGO
-        read -p "Descripción (ej: Planta Central): " DESC
-        EXTRA_ATTR="title: $CARGO"$'\n'"description: $DESC"
+        GID=10002
+        read -p "Cargo (ej: Jefe de Infraestructura TI): " CARGO
+        read -p "Ubicación/Oficina (ej: Planta Baja - Server Room): " UBICACION
+        read -p "Descripción del puesto: " DESC
+        
+        EXTRA_ATTR="title: $CARGO"$'\n'
+        EXTRA_ATTR+="roomNumber: $UBICACION"$'\n'
+        EXTRA_ATTR+="description: $DESC"
         ;;
     *)
         echo "Opción no válida. Saliendo."
@@ -57,17 +79,24 @@ sudo kadmin.local -q "addprinc -pw $PASSWORD $USUARIO"
 
 # 2. LDAP
 echo ">> [2/2] Generando entrada LDAP para $OU..."
-UID_NUM=$(shuf -i 20000-50000 -n 1)
+UID_NUM=$(shuf -i 10023-50000 -n 1)  # Comenzar desde 10023 (después del último estudiante)
 LDIF="/tmp/${USUARIO}.ldif"
+
+# Construir givenName
+if [ -z "$SEGUNDO_NOMBRE" ]; then
+    GIVEN_NAME="$NOMBRE"
+else
+    GIVEN_NAME="$NOMBRE $SEGUNDO_NOMBRE"
+fi
 
 cat <<LDIF_CONTENT > $LDIF
 dn: uid=$USUARIO,ou=$OU,$LDAP_BASE
 objectClass: inetOrgPerson
 objectClass: posixAccount
 objectClass: shadowAccount
-cn: $NOMBRE $APELLIDO
+cn: $CN_COMPLETO
 sn: $APELLIDO
-givenName: $NOMBRE
+givenName: $GIVEN_NAME
 uid: $USUARIO
 uidNumber: $UID_NUM
 gidNumber: $GID
@@ -82,4 +111,7 @@ rm $LDIF
 
 echo "------------------------------------------------"
 echo "✅ Usuario $USUARIO creado exitosamente en $OU"
+echo "   DN: uid=$USUARIO,ou=$OU,$LDAP_BASE"
+echo "   UID Number: $UID_NUM"
+echo "   GID Number: $GID"
 echo "------------------------------------------------"
