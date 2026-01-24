@@ -1,6 +1,4 @@
-# -------------------------------------------------------------
-# 1. CREACION DE LAS UNIDADES ORGANIZACIONALES (CARPETAS)
-# -------------------------------------------------------------
+# 1. UNIDADES ORGANIZACIONALES
 dn: ou=Estudiantes,dc=fis,dc=epn,dc=ec
 objectClass: organizationalUnit
 ou: Estudiantes
@@ -13,58 +11,321 @@ dn: ou=Administrativos,dc=fis,dc=epn,dc=ec
 objectClass: organizationalUnit
 ou: Administrativos
 
-# -------------------------------------------------------------
-# 2. CREACION DE UN ESTUDIANTE (TU USUARIO)
-# -------------------------------------------------------------
+# 2. PROFESOR: LUIS ENRIQUE MAFLA GALLEGOS
+dn: uid=luis.mafla,ou=Profesores,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Luis Enrique Mafla Gallegos
+sn: Mafla Gallegos
+givenName: Luis Enrique
+uid: luis.mafla
+uidNumber: 10001
+gidNumber: 10001
+homeDirectory: /home/luis.mafla
+loginShell: /bin/bash
+userPassword: password123
+title: PhD en Purdue University
+departmentNumber: Informática y Ciencias de la Computación
+roomNumber: 211
+telephoneNumber: 022-976-300
+description: Ingeniero Meteorólogo (Odessa) | Magíster en CC (EPN) | MSc (Purdue) | PhD (Purdue)
+
+# 3. ADMINISTRADOR DE PRUEBA
+dn: uid=carlos.soporte,ou=Administrativos,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Carlos Admin Soporte
+sn: Soporte
+uid: carlos.soporte
+uidNumber: 10002
+gidNumber: 10002
+homeDirectory: /home/carlos.soporte
+loginShell: /bin/bash
+userPassword: password123
+title: Jefe de Infraestructura TI
+roomNumber: Planta Baja - Server Room
+description: Administrador del Sistema de Autenticación Integrado
+
+# 4. ESTUDIANTES
+
 dn: uid=darlin.anacicha,ou=Estudiantes,dc=fis,dc=epn,dc=ec
 objectClass: inetOrgPerson
 objectClass: posixAccount
 objectClass: shadowAccount
-cn: Anacicha Darlin
+cn: Darlin Joel Anacicha Sanchez
 sn: Anacicha
-givenName: Darlin
 uid: darlin.anacicha
-uidNumber: 10002
-gidNumber: 10002
-homeDirectory: /home/darlin.anacicha
-loginShell: /bin/bash
-userPassword: password123
-departmentNumber: Ingenieria de Sistemas
-description: Edad: 22
-# jpegPhoto: (Aqui iria la foto codificada en Base64)
-
-# -------------------------------------------------------------
-# 3. CREACION DE UN PROFESOR (EJEMPLO)
-# -------------------------------------------------------------
-dn: uid=profe.ejemplo,ou=Profesores,dc=fis,dc=epn,dc=ec
-objectClass: inetOrgPerson
-objectClass: posixAccount
-objectClass: shadowAccount
-cn: Ingeniero Profe
-sn: Profe
-uid: profe.ejemplo
 uidNumber: 10003
-gidNumber: 10003
-homeDirectory: /home/profe.ejemplo
-loginShell: /bin/bash
+gidNumber: 10000
+homeDirectory: /home/darlin.anacicha
 userPassword: password123
-title: Magister en Seguridad Informatica
-# jpegPhoto: (Aqui iria la foto)
+departmentNumber: Ciencias de la Computación
+description: Edad: 22
 
-# -------------------------------------------------------------
-# 4. CREACION DE UN ADMINISTRATIVO (EJEMPLO)
-# -------------------------------------------------------------
-dn: uid=admin.secretaria,ou=Administrativos,dc=fis,dc=epn,dc=ec
+dn: uid=leandro.bravo,ou=Estudiantes,dc=fis,dc=epn,dc=ec
 objectClass: inetOrgPerson
 objectClass: posixAccount
 objectClass: shadowAccount
-cn: Secretaria General
-sn: Admin
-uid: admin.secretaria
+cn: Leandro Omar Bravo Orellana
+sn: Bravo
+uid: leandro.bravo
 uidNumber: 10004
-gidNumber: 10004
-homeDirectory: /home/admin.secretaria
-loginShell: /bin/bash
+gidNumber: 10000
+homeDirectory: /home/leandro.bravo
 userPassword: password123
-title: Secretaria de Decanato
-description: Administrativo de planta central
+departmentNumber: Ciencias de la Computación
+description: Edad: 23
+
+dn: uid=erick.carcelen,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Erick Eduardo Carcelen Piedra
+sn: Carcelen
+uid: erick.carcelen
+uidNumber: 10005
+gidNumber: 10000
+homeDirectory: /home/erick.carcelen
+userPassword: password123
+departmentNumber: Ciencias de la Computación
+description: Edad: 24
+
+dn: uid=alexis.chacon,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Alexis Agustin Chacon Recalde
+sn: Chacon
+uid: alexis.chacon
+uidNumber: 10006
+gidNumber: 10000
+homeDirectory: /home/alexis.chacon
+userPassword: password123
+departmentNumber: Ciencias de la Computación
+description: Edad: 22
+
+dn: uid=michael.enriquez,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Michael Steven Enriquez Flores
+sn: Enriquez
+uid: michael.enriquez
+uidNumber: 10007
+gidNumber: 10000
+homeDirectory: /home/michael.enriquez
+userPassword: password123
+departmentNumber: Ciencias de la Computación
+description: Edad: 25
+
+dn: uid=juan.flores,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Juan Esteban Flores Cruz
+sn: Flores
+uid: juan.flores
+uidNumber: 10008
+gidNumber: 10000
+homeDirectory: /home/juan.flores
+userPassword: password123
+departmentNumber: Ciencias de la Computación
+description: Edad: 23
+
+dn: uid=anthony.goyes,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Anthony Paul Goyes Quintanilla
+sn: Goyes
+uid: anthony.goyes
+uidNumber: 10009
+gidNumber: 10000
+homeDirectory: /home/anthony.goyes
+userPassword: password123
+departmentNumber: Ciencias de la Computación
+description: Edad: 22
+
+dn: uid=mark.hernandez,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Mark Jonathan Hernandez Almeida
+sn: Hernandez
+uid: mark.hernandez
+uidNumber: 10010
+gidNumber: 10000
+homeDirectory: /home/mark.hernandez
+userPassword: password123
+departmentNumber: Ciencias de la Computación
+description: Edad: 24
+
+dn: uid=francisco.hernandez,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Francisco Ignacio Hernandez Chamorro
+sn: Hernandez
+uid: francisco.hernandez
+uidNumber: 10011
+gidNumber: 10000
+homeDirectory: /home/francisco.hernandez
+userPassword: password123
+departmentNumber: Ciencias de la Computación
+description: Edad: 22
+
+dn: uid=wilson.inga,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Wilson Josua Inga Andrade
+sn: Inga
+uid: wilson.inga
+uidNumber: 10012
+gidNumber: 10000
+homeDirectory: /home/wilson.inga
+userPassword: password123
+departmentNumber: Ciencias de la Computación
+description: Edad: 23
+
+dn: uid=yasid.jimenez,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Yasid Gabriel Jimenez Jaramillo
+sn: Jimenez
+uid: yasid.jimenez
+uidNumber: 10013
+gidNumber: 10000
+homeDirectory: /home/yasid.jimenez
+userPassword: password123
+departmentNumber: Ciencias de la Computación
+description: Edad: 24
+
+dn: uid=andres.jimenez,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Andres Fernando Jimenez Satian
+sn: Jimenez
+uid: andres.jimenez
+uidNumber: 10014
+gidNumber: 10000
+homeDirectory: /home/andres.jimenez
+userPassword: password123
+departmentNumber: Ciencias de la Computación
+description: Edad: 25
+
+dn: uid=mateo.macas,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Mateo Israel Macas Macas
+sn: Macas
+uid: mateo.macas
+uidNumber: 10015
+gidNumber: 10000
+homeDirectory: /home/mateo.macas
+userPassword: password123
+departmentNumber: Ciencias de la Computación
+description: Edad: 22
+
+dn: uid=anthony.reinoso,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Anthony Sebastian Reinoso Cartuche
+sn: Reinoso
+uid: anthony.reinoso
+uidNumber: 10016
+gidNumber: 10000
+homeDirectory: /home/anthony.reinoso
+userPassword: password123
+departmentNumber: Ciencias de la Computación
+description: Edad: 23
+
+dn: uid=lenin.reyes,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Lenin Alexander Reyes Vallejo
+sn: Reyes
+uid: lenin.reyes
+uidNumber: 10017
+gidNumber: 10000
+homeDirectory: /home/lenin.reyes
+userPassword: password123
+departmentNumber: Ciencias de la Computación
+description: Edad: 22
+
+dn: uid=jose.sarango,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Jose Armando Sarango Cuenca
+sn: Sarango
+uid: jose.sarango
+uidNumber: 10018
+gidNumber: 10000
+homeDirectory: /home/jose.sarango
+userPassword: password123
+departmentNumber: Ciencias de la Computación
+description: Edad: 24
+
+dn: uid=danny.tipan,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Danny Paul Tipan Amagua
+sn: Tipan
+uid: danny.tipan
+uidNumber: 10019
+gidNumber: 10000
+homeDirectory: /home/danny.tipan
+userPassword: password123
+departmentNumber: Ciencias de la Computación
+description: Edad: 25
+
+dn: uid=sergio.vite,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Sergio Alejandro Vite Rosero
+sn: Vite
+uid: sergio.vite
+uidNumber: 10020
+gidNumber: 10000
+homeDirectory: /home/sergio.vite
+userPassword: password123
+departmentNumber: Ciencias de la Computación
+description: Edad: 23
+
+dn: uid=bryan.yunga,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Bryan Fabricio Yunga Jumbo
+sn: Yunga
+uid: bryan.yunga
+uidNumber: 10021
+gidNumber: 10000
+homeDirectory: /home/bryan.yunga
+userPassword: password123
+departmentNumber: Ciencias de la Computación
+description: Edad: 22
+
+dn: uid=martin.zambonino,ou=Estudiantes,dc=fis,dc=epn,dc=ec
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Martin Sebastian Zambonino Gavela
+sn: Zambonino
+uid: martin.zambonino
+uidNumber: 10022
+gidNumber: 10000
+homeDirectory: /home/martin.zambonino
+userPassword: password123
+departmentNumber: Ciencias de la Computación
+description: Edad: 24
