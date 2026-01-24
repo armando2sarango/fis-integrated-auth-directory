@@ -113,8 +113,44 @@ done
 
 echo "✅ APT disponible."
 
+# --- SOLUCIÓN 1: PRE-CONFIGURACIÓN ---
+echo "🔐 Pre-configurando contraseña de LDAP..."
+LDAP_ADMIN_PASS="Sistemas2026"
+sudo debconf-set-selections <<< "slapd slapd/internal/generated_adminpw password $LDAP_ADMIN_PASS"
+sudo debconf-set-selections <<< "slapd slapd/internal/adminpw password $LDAP_ADMIN_PASS"
+sudo debconf-set-selections <<< "slapd slapd/password2 password $LDAP_ADMIN_PASS"
+sudo debconf-set-selections <<< "slapd slapd/password1 password $LDAP_ADMIN_PASS"
+sudo debconf-set-selections <<< "slapd slapd/domain string fis.epn.ec"
+sudo debconf-set-selections <<< "slapd shared/organization string FIS EPN"
+sudo debconf-set-selections <<< "slapd slapd/backend string MDB"
+sudo debconf-set-selections <<< "slapd slapd/purge_database boolean true"
+sudo debconf-set-selections <<< "slapd slapd/move_old_database boolean true"
+sudo debconf-set-selections <<< "slapd slapd/allow_ldap_v2 boolean false"
+sudo debconf-set-selections <<< "slapd slapd/no_configuration boolean false"
+echo "✅ LDAP pre-configurado."
+
 sudo apt update -y
 sudo apt install ntp krb5-kdc krb5-admin-server krb5-config slapd ldap-utils bind9 bind9utils bind9-doc apache2 libapache2-mod-auth-gssapi php libapache2-mod-php php-ldap -y
+
+# --- SOLUCIÓN 2: POST-VERIFICACIÓN ---
+echo "🔧 Verificando contraseña de LDAP..."
+if ! ldapsearch -x -D "cn=admin,dc=fis,dc=epn,dc=ec" -w "$LDAP_ADMIN_PASS" \
+     -b "dc=fis,dc=epn,dc=ec" "(objectClass=*)" > /dev/null 2>&1; then
+    
+    echo "⚠️  Corrigiendo contraseña..."
+    NEW_HASH=$(sudo slappasswd -s "$LDAP_ADMIN_PASS")
+    cat > /tmp/fix_ldap.ldif << EOF
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+replace: olcRootPW
+olcRootPW: $NEW_HASH
+EOF
+    sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/fix_ldap.ldif
+    sudo systemctl restart slapd
+    rm /tmp/fix_ldap.ldif
+    echo "✅ Contraseña corregida."
+fi
+
 # --- BLOQUE 3: CONFIGURACIÓN ---
 echo ""
 echo "========================================================="
