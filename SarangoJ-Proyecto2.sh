@@ -98,6 +98,20 @@ echo "👉 Servers: krb5.fis.epn.ec"
 echo "👉 Admin Password: Sistemas2026"
 echo "---------------------------------------------------------"
 sleep 2
+echo "🔐 Verificando bloqueo de APT..."
+
+echo "🛑 Deteniendo actualizaciones automáticas..."
+sudo systemctl stop unattended-upgrades 2>/dev/null
+sudo systemctl disable unattended-upgrades 2>/dev/null
+
+echo "🔐 Verificando bloqueo de APT..."
+while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+    echo "⏳ APT está ocupado. Esperando..."
+    sleep 5
+done
+
+
+echo "✅ APT disponible."
 
 sudo apt update -y
 sudo apt install ntp krb5-kdc krb5-admin-server krb5-config slapd ldap-utils bind9 bind9utils bind9-doc apache2 libapache2-mod-auth-gssapi php libapache2-mod-php php-ldap -y
