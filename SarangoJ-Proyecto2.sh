@@ -80,20 +80,26 @@ sleep 1
 
 echo ""
 echo "========================================================="
-echo " 🚀 INICIANDO INSTALACIÓN DEL SERVICIO INTEGRADO (FIS EPN)"
+echo " 🚀 INICIANDO INSTALACIÓN DE PAQUETES"
 echo "========================================================="
+echo "Preparando instalación. ATENTO A LAS PANTALLAS AZULES:"
+echo "👉 Realm: FIS.EPN.EC"
+echo "👉 Servers: krb5.fis.epn.ec"
+echo "👉 Admin Password: SistemasSeguro2026"
+echo "---------------------------------------------------------"
+
+sudo apt update -y
+# Esto asegura que los programas existan aunque hayas hecho la limpieza arriba
+sudo apt install krb5-kdc krb5-admin-server krb5-config slapd ldap-utils bind9 bind9utils bind9-doc apache2 libapache2-mod-auth-gssapi php libapache2-mod-php php-ldap -y
+
 
 # 1. Permisos
 chmod +x scripts/*.sh
 chmod +x deploy.sh
 
-# 2. Instalación de Paquetes
-# Aquí saldrán las PANTALLAS AZULES si el sistema está limpio.
-# Recuerda: Realm = FIS.EPN.EC | Servidores = krb5.fis.epn.ec
-./scripts/setup_clients.sh
-
-# 3. Configuración Servidor (Genera krb5.conf y DNS)
+# 2. Configuración Servidor (Genera krb5.conf y DNS)
 ./scripts/setup_server.sh
+
 # --- BLOQUE DE SEGURIDAD LDAP (PROHIBIR ANÓNIMOS) ---
 echo "🔒 Blindando servidor LDAP (Desactivando acceso anónimo)..."
 cat <<EOF > disable_anon.ldif
@@ -143,7 +149,8 @@ fi
 
 # 5. Carga de Datos LDAP (Usuarios y Estructura)
 echo "--- [LDAP] Cargando estructura y usuarios base ---"
-ldapadd -c -x -D "cn=admin,dc=fis,dc=epn,dc=ec" -w Sistemas2026 -f config/universidad.ldif > /dev/null 2>&1 || echo "⚠️  Nota: Se omitieron entradas duplicadas en LDAP."
+# NOTA: He actualizado la clave a SistemasSeguro2026 para que coincida con la pantalla azul
+ldapadd -c -x -D "cn=admin,dc=fis,dc=epn,dc=ec" -w SistemasSeguro2026 -f config/universidad.ldif > /dev/null 2>&1 || echo "⚠️  Nota: Se omitieron entradas duplicadas en LDAP."
 
 # 6. Carga de Datos Kerberos (Sincronización)
 # Ahora esto funcionará porque la base de datos ya fue creada en el paso 3 (FIX)
