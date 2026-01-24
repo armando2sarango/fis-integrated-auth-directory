@@ -4,10 +4,10 @@
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-20.04%2B-orange.svg)](https://ubuntu.com/)
 [![Kerberos](https://img.shields.io/badge/Kerberos-MIT-red.svg)](https://web.mit.edu/kerberos/)
 
-**Proyecto:** Servicio Integrado de Directorio y Autenticación para la FIS
+**Proyecto:** Servicio Integrado de Directorio y Autenticación para la FIS  
 **Estudiante:** Jose Sarango  
-**Materia:** Computación Distribuida
-**Docente:** Enrrique Mafla Gallegos
+**Materia:** Computación Distribuida  
+**Docente:** Enrique Mafla Gallegos  
 **Institución:** Escuela Politécnica Nacional
 
 ---
@@ -94,7 +94,7 @@ Almacena atributos extendidos no manejados por Kerberos:
 ## 📦 Requisitos Previos
 
 ### Servidor (Linux)
-- **SO:** Ubuntu 20.04+ / Debian 11+
+- **SO:** Ubuntu 20.04+ / Debian 11+ / WSL2
 - **RAM:** Mínimo 2GB
 - **Privilegios:** Acceso root/sudo
 - **Conectividad:** Puerto 80 (HTTP) disponible
@@ -127,6 +127,10 @@ chmod +x SarangoJ-Proyecto2.sh deploy.sh scripts/*.sh verificar_todo.sh
 ```bash
 sudo ./SarangoJ-Proyecto2.sh
 ```
+
+### 🛡️ Nota de Seguridad
+
+El script detectará si existen configuraciones previas y solicitará confirmación. Si acepta, se realizará un **Backup Automático** de sus archivos en la carpeta `./backups_previos/` antes de realizar cambios.
 
 ### ⚠️ Interacción Durante la Instalación
 
@@ -166,7 +170,19 @@ Durante la instalación de Kerberos, configure los siguientes valores **exactame
    - **Principal:** `luis.mafla` (o cualquier usuario del sistema)
    - **Password:** `password123`
 
-### D. Configuración de Mozilla Firefox
+### D. Configuración de Zonas de Seguridad de Windows
+
+1. Abra **Panel de Control** → **Opciones de Internet**
+2. Vaya a la pestaña **Seguridad**
+3. Seleccione **Intranet local**
+4. Haga clic en **Sitios**
+5. Haga clic en **Opciones avanzadas**
+6. Agregue el dominio: `http://krb5.fis.epn.ec`
+7. Haga clic en **Agregar** y luego en **Cerrar**
+
+> **Nota:** Este paso es crucial para que Windows confíe en el dominio y permita la autenticación automática.
+
+### E. Configuración de Mozilla Firefox
 
 1. Escriba en la barra de direcciones: `about:config`
 2. Acepte el aviso de riesgo
@@ -237,24 +253,20 @@ Ejecute el script de verificación para validar la correcta creación de usuario
 
 ```
 fis-integrated-auth-directory/
-├── SarangoJ-Proyecto2.sh       # Script maestro de instalación
-├── deploy.sh                    # Configuración de servicios
-├── verificar_todo.sh            # Script de auditoría
+├── SarangoJ-Proyecto2.sh       # Script maestro de instalación y seguridad
+├── deploy.sh                   # Script de despliegue web
+├── verificar_todo.sh           # Script de auditoría
 ├── scripts/
-│   ├── setup_dns.sh            # Configuración BIND9
-│   ├── setup_kerberos.sh       # Configuración KDC
-│   ├── setup_ldap.sh           # Configuración OpenLDAP
-│   └── setup_web.sh            # Configuración Apache/PHP
+│   ├── setup_server.sh         # Configuración DNS (Bind9) y KDC
+│   ├── setup_clients.sh        # Instalación de dependencias
+│   ├── cargar_demo.sh          # Sincronización LDAP-Kerberos
+│   └── crear_usuario.sh        # Asistente para crear usuarios manuales
 ├── config/
-│   ├── krb5.conf               # Configuración cliente Kerberos
-│   ├── kdc.conf                # Configuración KDC
-│   └── ldap/
-│       ├── base.ldif           # Estructura base LDAP
-│       └── users.ldif          # Datos de usuarios
-└── web/
-    ├── index.php               # Dashboard principal
-    ├── login.php               # Página de autenticación
-    └── assets/                 # Recursos estáticos
+│   ├── universidad.ldif        # Datos masivos de usuarios y estructura
+│   └── mafla.ldif              # Archivo de prueba específico
+└── src/
+    ├── index.php               # Dashboard principal (Lógica SSO)
+    └── img/                    # Directorio de imágenes de perfil
 ```
 
 ---
@@ -317,7 +329,6 @@ Escuela Politécnica Nacional
 
 Para reportar problemas o solicitar ayuda:
 - Abra un [Issue](https://github.com/armando2sarango/fis-integrated-auth-directory/issues)
-- Contacto: [Correo institucional]
 
 ---
 
