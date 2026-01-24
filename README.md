@@ -504,24 +504,11 @@ Las contribuciones son bienvenidas. Por favor:
 
 ---
 
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT. Consulte el archivo `LICENSE` para más detalles.
-
----
-
 ## 👨‍💻 Autor
 
 **Jose Sarango**  
-Estudiante de Administración de Sistemas  
+Estudiante de Ciencias de la Computación
 Escuela Politécnica Nacional
-
----
-
-## 📞 Soporte
-
-Para reportar problemas o solicitar ayuda:
-- Abra un [Issue](https://github.com/armando2sarango/fis-integrated-auth-directory/issues)
 
 ---
 
