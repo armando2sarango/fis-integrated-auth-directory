@@ -1,5 +1,5 @@
 #!/bin/bash
-USUARIOS=("luis.mafla" "carlos.soporte" "darlin.anacicha" "leandro.bravo" "erick.carcelen" "alexis.chacon" "michael.enriquez" "juan.flores" "anthony.goyes" "mark.hernandez" "francisco.hernandez" "wilson.inga" "yasid.jimenez" "andres.jimenez" "mateo.macas" "anthony.reinoso" "lenin.reyes" "jose.sarango" "danny.tipan" "sergio.vite" "bryan.yunga" "martin.zambonino")
+USUARIOS=("enrrique.mafla" "carlos.soporte" "darlin.anacicha" "leandro.bravo" "erick.carcelen" "alexis.chacon" "michael.enriquez" "juan.flores" "anthony.goyes" "mark.hernandez" "francisco.hernandez" "wilson.inga" "yasid.jimenez" "andres.jimenez" "mateo.macas" "anthony.reinoso" "lenin.reyes" "jose.sarango" "danny.tipan" "sergio.vite" "bryan.yunga" "martin.zambonino")
 # Credenciales LDAP
 LDAP_ADMIN="cn=admin,dc=fis,dc=epn,dc=ec"
 LDAP_PASS="Sistemas2026"

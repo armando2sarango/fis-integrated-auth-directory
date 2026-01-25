@@ -10,8 +10,27 @@ read -p "Usuario (ej: joel.quilumba): " USUARIO
 read -p "Primer Nombre: " NOMBRE
 read -p "Segundo Nombre (opcional, presiona Enter para omitir): " SEGUNDO_NOMBRE
 read -p "Apellido: " APELLIDO
+read -p "Segundo Apellido (opcional): " SEGUNDO_APELLIDO
 read -s -p "Contraseña: " PASSWORD
 echo ""
+# --- 1. LÓGICA DE NOMBRES ---
+# Apellido Completo
+if [ -z "$SEGUNDO_APELLIDO" ]; then
+    SN_LDAP="$APELLIDO"
+else
+    SN_LDAP="$APELLIDO $SEGUNDO_APELLIDO"
+fi
+
+# Nombre de Pila Completo
+if [ -z "$SEGUNDO_NOMBRE" ]; then
+    GIVEN_LDAP="$NOMBRE"
+else
+    GIVEN_LDAP="$NOMBRE $SEGUNDO_NOMBRE"
+fi
+
+# Nombre Completo (lo que lee la Web)
+CN_LDAP="$GIVEN_LDAP $SN_LDAP"
+
 echo "------------------------------------------------"
 echo "Seleccione el ROL del usuario:"
 echo "1) Estudiante"
@@ -23,51 +42,43 @@ read -p "Opción (1-3): " OPCION
 OU="Estudiantes"
 GID=10000
 EXTRA_ATTR=""
-CN_COMPLETO=""
-
-# Construir nombre completo
-if [ -z "$SEGUNDO_NOMBRE" ]; then
-    CN_COMPLETO="$NOMBRE $APELLIDO"
-else
-    CN_COMPLETO="$NOMBRE $SEGUNDO_NOMBRE $APELLIDO"
-fi
 
 case $OPCION in
     1)
         OU="Estudiantes"
         GID=10000
-        read -p "Carrera (ej: Ciencias de la Computación): " CARRERA
+        read -p "Carrera: " CARRERA
         read -p "Edad: " EDAD
         EXTRA_ATTR="departmentNumber: $CARRERA"$'\n'"description: Edad: $EDAD"
         ;;
     2)
         OU="Profesores"
         GID=10001
-        read -p "Título Académico (ej: PhD en Purdue University): " TITULO
-        read -p "Departamento (ej: Informática y Ciencias de la Computación): " DEPTO
-        read -p "Número de Oficina (ej: 211): " OFICINA
-        read -p "Teléfono (ej: 022-976-300): " TELEFONO
+        read -p "Título Académico: " TITULO
+        read -p "Departamento: " DEPTO
+        read -p "Número de Oficina: " OFICINA
+        read -p "Teléfono (opcional): " TEL
         read -p "Descripción/Trayectoria: " DESC
         
         EXTRA_ATTR="title: $TITULO"$'\n'
         EXTRA_ATTR+="departmentNumber: $DEPTO"$'\n'
         EXTRA_ATTR+="roomNumber: $OFICINA"$'\n'
-        EXTRA_ATTR+="telephoneNumber: $TELEFONO"$'\n'
+        [ -n "$TEL" ] && EXTRA_ATTR+="telephoneNumber: $TEL"$'\n'
         EXTRA_ATTR+="description: $DESC"
         ;;
     3)
         OU="Administrativos"
         GID=10002
-        read -p "Cargo (ej: Jefe de Infraestructura TI): " CARGO
-        read -p "Ubicación/Oficina (ej: Planta Baja - Server Room): " UBICACION
-        read -p "Descripción del puesto: " DESC
+        read -p "Cargo: " CARGO
+        read -p "Ubicación/Oficina: " UBICACION
+        read -p "Descripción: " DESC
         
         EXTRA_ATTR="title: $CARGO"$'\n'
         EXTRA_ATTR+="roomNumber: $UBICACION"$'\n'
         EXTRA_ATTR+="description: $DESC"
         ;;
     *)
-        echo "Opción no válida. Saliendo."
+        echo "Opción no válida."
         exit 1
         ;;
 esac
@@ -94,9 +105,9 @@ dn: uid=$USUARIO,ou=$OU,$LDAP_BASE
 objectClass: inetOrgPerson
 objectClass: posixAccount
 objectClass: shadowAccount
-cn: $CN_COMPLETO
-sn: $APELLIDO
-givenName: $GIVEN_NAME
+cn: $CN_LDAP
+sn: $SN_LDAP
+givenName: $GIVEN_LDAP
 uid: $USUARIO
 uidNumber: $UID_NUM
 gidNumber: $GID

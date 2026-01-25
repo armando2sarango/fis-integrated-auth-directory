@@ -17,7 +17,7 @@ reset_krb() {
 }
 
 # 1. Profesor y Admin
-reset_krb "luis.mafla"
+reset_krb "enrrique.mafla"
 reset_krb "carlos.soporte"
 
 # 2. Estudiantes
