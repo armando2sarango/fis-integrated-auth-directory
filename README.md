@@ -39,7 +39,7 @@ Este sistema simula una infraestructura de red empresarial real que implementa *
 
 ▶️ **Demostración completa del sistema (SSO + Kerberos + LDAP):**
 
-[Descargar / Ver Video Demo](./video/Demostracion.mp4)
+[Descargar / Ver Video Demo](./src/video/Demostracion.mp4)
 
 > En este video se muestra:
 > - Instalación automática del sistema  
