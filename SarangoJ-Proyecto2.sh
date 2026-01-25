@@ -169,6 +169,13 @@ echo "✅ Reloj sincronizado."
 # ---------------------------------------------------------
 # 2.Configuración Servidor
 ./scripts/setup_server.sh
+echo "⏳ Esperando LDAP..."
+
+until systemctl is-active --quiet slapd; do
+    sleep 2
+done
+
+echo "✅ LDAP activo"
 
 # --- BLINDAJE DE SEGURIDAD LDAP ---
 echo "🔒 Blindando servidor LDAP..."
@@ -244,8 +251,23 @@ fi
 ./deploy.sh
 
 # 5. Carga de Datos LDAP
+echo "--- [LDAP] Esperando servicio antes de carga ---"
+
+until systemctl is-active --quiet slapd; do
+    sleep 2
+done
+
+echo "✅ LDAP listo para carga"
+
 echo "--- [LDAP] Cargando estructura y usuarios ---"
-ldapadd -c -x -D "cn=admin,dc=fis,dc=epn,dc=ec" -w Sistemas2026 -f config/universidad.ldif > /dev/null 2>&1 || echo "⚠️  Nota: Se omitieron duplicados."
+
+ldapadd -x -D "cn=admin,dc=fis,dc=epn,dc=ec" -w Sistemas2026 \
+-f config/universidad.ldif || {
+
+echo "❌ ERROR cargando datos LDAP"
+exit 1
+
+}
 
 # 6. Carga de Datos Kerberos
 ./scripts/cargar_demo.sh
