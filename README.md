@@ -20,6 +20,7 @@
 - [Requisitos](#-requisitos-previos)
 - [Instalación](#-instalación)
 - [Configuración del Cliente](#-configuración-del-cliente-windows)
+- [Credenciales del Sistema](#-credenciales-del-sistema)
 - [Uso](#-uso-del-sistema)
 - [Verificación](#-verificación-y-pruebas)
 - [Estructura del Proyecto](#-estructura-del-proyecto)
@@ -268,7 +269,86 @@ Para que el cliente de Windows sepa cómo comunicarse con el reino FIS.EPN.EC, n
 | `network.negotiate-auth.allow-non-fqdn` | `true` | Permite nombres de host cortos |
 
 ---
+🔐 Credenciales del Sistema
+Credenciales Administrativas
+Servidor LDAP (OpenLDAP)
 
+DN Administrativo: cn=admin,dc=fis,dc=epn,dc=ec
+Contraseña: Sistemas2026
+Uso: Gestión del directorio LDAP, creación/modificación de entradas
+Ejemplo de uso:
+# Búsqueda en LDAP
+ldapsearch -x -D "cn=admin,dc=fis,dc=epn,dc=ec" -w Sistemas2026 \
+  -b "dc=fis,dc=epn,dc=ec" "(objectClass=*)"
+
+# Modificar entrada LDAP
+ldapmodify -x -D "cn=admin,dc=fis,dc=epn,dc=ec" -w Sistemas2026 -f modificacion.ldif
+Servidor Kerberos (KDC Admin)
+
+Principal Administrativo: admin/admin@FIS.EPN.EC
+Contraseña: Sistemas2026
+Uso: Gestión de principales Kerberos, políticas de seguridad
+Ejemplo de uso:
+# Acceso a kadmin
+kadmin -p admin/admin@FIS.EPN.EC
+# Ingresar contraseña: Sistemas2026
+
+# O con kadmin.local (requiere sudo, no solicita contraseña)
+sudo kadmin.local
+### Credenciales de Usuarios
+
+#### Usuarios del Sistema (Kerberos y LDAP)
+- **Contraseña predeterminada:** `password123`
+- **Aplica a:** Todos los usuarios creados automáticamente por los scripts
+- **Alcance:** Autenticación Kerberos y acceso web SSO
+
+#### Usuarios de Prueba Precargados
+
+| Rol | Usuario | Contraseña | Realm Completo |
+|-----|---------|------------|----------------|
+| 👨‍🏫 **Profesor** | `luis.mafla` | `password123` | `luis.mafla@FIS.EPN.EC` |
+| 👨‍🎓 **Estudiante** | `jose.sarango` | `password123` | `jose.sarango@FIS.EPN.EC` |
+| 👨‍💼 **Administrativo** | `carlos.soporte` | `password123` | `carlos.soporte@FIS.EPN.EC` |
+
+### 🔑 Cambio de Contraseñas
+
+#### Cambiar contraseña de usuario en Kerberos:
+```bash
+# Desde el cliente (usuario cambia su propia contraseña)
+kpasswd usuario@FIS.EPN.EC
+
+# Desde el servidor (como administrador)
+sudo kadmin.local
+kadmin.local: cpw usuario@FIS.EPN.EC
+# Ingresar nueva contraseña cuando se solicite
+```
+
+#### Cambiar contraseña del administrador LDAP:
+```bash
+# Generar hash de nueva contraseña
+slappasswd
+# Copiar el hash generado (ejemplo: {SSHA}xK8V6qkMOGGZr...)
+
+# Editar configuración
+sudo ldapmodify -Y EXTERNAL -H ldapi:///
+# Ingresar:
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+replace: olcRootPW
+olcRootPW: {SSHA}xK8V6qkMOGGZr...
+# Presionar Ctrl+D para finalizar
+```
+
+### ⚠️ Notas de Seguridad
+
+> **🔒 IMPORTANTE - Entorno de Producción:**
+> - Las contraseñas predeterminadas (`Sistemas2026` y `password123`) son **SOLO para entornos de prueba/desarrollo**
+> - En producción, utilice contraseñas robustas (mínimo 16 caracteres, mezcla de mayúsculas, minúsculas, números y símbolos)
+> - Implemente políticas de rotación de contraseñas cada 90 días
+> - Habilite autenticación de dos factores (2FA) cuando sea posible
+> - Revise logs de autenticación regularmente: `/var/log/krb5kdc.log` y `/var/log/slapd.log`
+
+---
 ## 🎯 Uso del Sistema
 
 ### Acceso al Sistema
