@@ -33,6 +33,23 @@
 ## 📖 Descripción del Proyecto
 
 Este sistema simula una infraestructura de red empresarial real que implementa **Single Sign-On (SSO)** para gestión de identidades corporativas. Permite que usuarios de diferentes perfiles (Profesores, Estudiantes y Administrativos) accedan a servicios web utilizando una única contraseña, visualizando información personalizada según su rol.
+---
+
+## 🎥 Video de Demostración
+
+▶️ **Demostración completa del sistema (SSO + Kerberos + LDAP):**
+
+[Descargar / Ver Video Demo](./video/Demostracion.mp4)
+
+> En este video se muestra:
+> - Instalación automática del sistema  
+> - Autenticación SSO con Kerberos  
+> - Acceso web integrado  
+> - Gestión de usuarios LDAP  
+> - Pruebas de verificación  
+
+---
+
 ## 🚀 Quick Start (Para Usuarios Experimentados)
 ```bash
 # 1. Clonar e instalar
