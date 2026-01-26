@@ -26,7 +26,6 @@
 - [Estructura del Proyecto](#-estructura-del-proyecto)
 - [Solución de Problemas](#-solución-de-problemas)
 - [Contribuciones](#-contribuciones)
-- [Licencia](#-licencia)
 
 ---
 
@@ -39,16 +38,19 @@ Este sistema simula una infraestructura de red empresarial real que implementa *
 
 ▶️ **Demostración completa del sistema (SSO + Kerberos + LDAP):**
 
-[Descargar / Ver Video Demo](./src/video/Demostracion.mp4)
+🔴 **Ver demo online:**
+https://epnecuador-my.sharepoint.com/:v:/g/personal/jose_sarango_epn_edu_ec/IQBqtW0KFnQxTa1CUU-Qs_9XAUasufAOvDYI3Davxg0lRNY?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=5sNm4X 
 
 > En este video se muestra:
 > - Instalación automática del sistema  
 > - Autenticación SSO con Kerberos  
 > - Acceso web integrado  
 > - Gestión de usuarios LDAP  
+> - Gestión de usuarios LDAP  
 > - Pruebas de verificación  
 
 ---
+
 
 ## 🚀 Quick Start (Para Usuarios Experimentados)
 ```bash
